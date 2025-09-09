@@ -22,8 +22,9 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Track'),
-        backgroundColor: Colors.teal.shade700,
+        title: const Text('Track Your Expense',
+        style: TextStyle(color: Colors.white,fontSize: 20),),
+        backgroundColor: Colors.teal.shade900,
         centerTitle: true,
       ),
       body: Center(

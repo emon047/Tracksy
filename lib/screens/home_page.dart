@@ -64,7 +64,8 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TrackSy'),
+        title: const Text('TrackSy',
+        style: TextStyle(color: Colors.white,fontSize: 20),),
         backgroundColor: tealDark,
         actions: [
           IconButton(
