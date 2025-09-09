@@ -1,7 +1,8 @@
-// lib/screens/splash_screen.dart
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:provider/provider.dart';
+import '../services/supabase_service.dart';
 import 'login_page.dart';
+import 'home_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,74 +11,37 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _scale;
-  late Animation<double> _opacity;
+class _SplashScreenState extends State<SplashScreen> {
+  Future<void> checkAuth() async {
+    final service = Provider.of<SupabaseService>(context, listen: false);
+    final user = service.getCurrentUser();
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (user != null) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => const HomePage()));
+    } else {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => const LoginPage()));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    );
-    _scale = Tween<double>(begin: 0.7, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
-    );
-    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeIn),
-    );
-    _ctrl.forward();
-
-    Timer(const Duration(seconds: 5), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
+    checkAuth();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal.shade700,
-      body: Center(
-        child: AnimatedBuilder(
-          animation: _ctrl,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _scale.value,
-              child: Opacity(
-                opacity: _opacity.value,
-                child: Text(
-                  'TrackSy',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 46,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.5,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 8,
-                        color: Colors.black.withOpacity(0.25),
-                        offset: const Offset(0, 4),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
+        body: Center(
+      child: Text('TrackSy',
+          style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal.shade800)),
+    ));
   }
 }

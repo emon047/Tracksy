@@ -1,71 +1,75 @@
-// lib/services/supabase_service.dart
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/expense.dart';
 
 class SupabaseService {
   final SupabaseClient client = Supabase.instance.client;
 
-  Future<dynamic> signUp({
+  // Sign up user
+  Future<void> signUp({
     required String email,
     required String password,
     required String name,
     required String phone,
   }) async {
-    final resp = await client.auth.signUp(
+    await client.auth.signUp(
       email: email,
       password: password,
-      data: {'name': name, 'phone': phone},
+      data: {'name': name, 'phone': phone}, // Use 'data' instead of 'userMetadata'
     );
-    return resp;
   }
 
-  Future<dynamic> signIn({
+  // Sign in user
+  Future<void> signIn({
     required String email,
     required String password,
   }) async {
-    final resp = await client.auth.signInWithPassword(
+    await client.auth.signInWithPassword(
       email: email,
       password: password,
     );
-    return resp;
   }
 
+  // Sign out user
   Future<void> signOut() async {
     await client.auth.signOut();
   }
 
-  Future<bool> addExpense({
-    required String title,
-    required double amount,
-    required String category,
-  }) async {
-    final userId = client.auth.currentUser?.id;
-    if (userId == null) return false;
-    await client.from('expenses').insert({
-      'user_id': userId,
-      'title': title,
-      'amount': amount,
-      'category': category,
-      'date': DateTime.now().toIso8601String(),
-    });
-    return true;
+  // Get current user
+  User? getCurrentUser() {
+    return client.auth.currentUser;
   }
 
-  Future<List<Map<String, dynamic>>> fetchExpenses() async {
+  // Add expense
+  Future<void> addExpense(Expense expense) async {
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    await client.from('expenses').insert({
+      'user_id': userId,
+      'title': expense.title,
+      'amount': expense.amount,
+      'category': expense.category,
+      'date': expense.date.toIso8601String(),
+    });
+  }
+
+  // Fetch expenses
+  Future<List<Expense>> fetchExpenses() async {
     final userId = client.auth.currentUser?.id;
     if (userId == null) return [];
+
     final response = await client
         .from('expenses')
         .select()
         .eq('user_id', userId)
         .order('date', ascending: false);
-    final raw = response as List<dynamic>;
-    return raw.map((e) => Map<String, dynamic>.from(e)).toList();
+
+    final rawList = response as List<dynamic>;
+    return rawList.map((e) => Expense.fromMap(e)).toList();
   }
 
-  Future<bool> deleteExpense(dynamic id) async {
+  // Delete expense
+  Future<void> deleteExpense(String id) async {
     await client.from('expenses').delete().eq('id', id);
-    return true;
   }
-
-  User? getCurrentUser() => client.auth.currentUser;
 }

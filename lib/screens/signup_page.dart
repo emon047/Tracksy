@@ -72,7 +72,9 @@ class _SignUpPageState extends State<SignUpPage> {
                         final phone = phoneController.text.trim();
                         final password = passwordController.text.trim();
 
-                        if (name.isEmpty || email.isEmpty || password.isEmpty) {
+                        if (name.isEmpty ||
+                            email.isEmpty ||
+                            password.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text('Please fill required fields')),
@@ -84,7 +86,11 @@ class _SignUpPageState extends State<SignUpPage> {
 
                         try {
                           await service.signUp(
-                              email: email, password: password, name: name, phone: phone);
+                              email: email,
+                              password: password,
+                              name: name,
+                              phone: phone);
+
                           final user = service.getCurrentUser();
                           setState(() => loading = false);
 
@@ -92,7 +98,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text(
-                                      'Signed up. Please confirm your email and login.')),
+                                      'Signed up. Please confirm your email before login.')),
                             );
                             Navigator.pop(context);
                           } else {

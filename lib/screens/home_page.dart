@@ -1,6 +1,5 @@
-// lib/screens/home_page.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart' as p;
+import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/supabase_service.dart';
 import 'profile_page.dart';
@@ -20,11 +19,11 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> loadExpenses() async {
     setState(() => loading = true);
-    final service = p.Provider.of<SupabaseService>(context, listen: false);
+    final service = Provider.of<SupabaseService>(context, listen: false);
     final data = await service.fetchExpenses();
     setState(() {
-      expenses = data;
-      filtered = data;
+      expenses = data.map((e) => e.toMap()).toList();
+      filtered = expenses;
       loading = false;
     });
   }
@@ -55,8 +54,9 @@ class _HomePageState extends State<HomePage> {
     for (var e in expenses) {
       final amt = e['amount'];
       double v = 0;
-      if (amt is num) v = amt.toDouble();
-      else if (amt is String) v = double.tryParse(amt) ?? 0;
+      if (amt is num) {
+        v = amt.toDouble();
+      } else if (amt is String) v = double.tryParse(amt) ?? 0;
       total += v;
       final cat = (e['category'] ?? 'Others').toString();
       categoryTotals[cat] = (categoryTotals[cat] ?? 0) + v;
@@ -70,8 +70,10 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () async {
-              await Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const ProfilePage()));
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const ProfilePage()));
               await loadExpenses();
             },
           ),
@@ -150,7 +152,9 @@ class _HomePageState extends State<HomePage> {
                                   value: e.value,
                                   title: e.key,
                                   color: Colors
-                                      .primaries[categoryTotals.keys.toList().indexOf(e.key) %
+                                      .primaries[categoryTotals.keys
+                                              .toList()
+                                              .indexOf(e.key) %
                                           Colors.primaries.length],
                                   radius: 60))
                               .toList(),
@@ -204,6 +208,13 @@ class _HomePageState extends State<HomePage> {
                                     subtitle: Text('$cat • $dateStr'),
                                     trailing: Text(
                                         '\$${double.tryParse(amt.toString())?.toStringAsFixed(2) ?? amt.toString()}'),
+                                    onLongPress: () async {
+                                      final service = Provider.of<SupabaseService>(
+                                          context,
+                                          listen: false);
+                                      await service.deleteExpense(e['id']);
+                                      await loadExpenses();
+                                    },
                                   ),
                                 );
                               },

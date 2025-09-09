@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () async {
                         final email = emailController.text.trim();
                         final password = passwordController.text.trim();
+
                         if (email.isEmpty || password.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -75,9 +76,11 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() => loading = true);
 
                         try {
-                          await service.signIn(email: email, password: password);
+                          await service.signIn(
+                              email: email, password: password);
                           final user = service.getCurrentUser();
                           setState(() => loading = false);
+
                           if (user == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
