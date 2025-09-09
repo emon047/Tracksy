@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Track'),
         backgroundColor: Colors.teal.shade700,
         centerTitle: true,
       ),
@@ -123,3 +123,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+//Md. Emon Elias

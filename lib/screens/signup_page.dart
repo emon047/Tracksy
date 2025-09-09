@@ -72,9 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         final phone = phoneController.text.trim();
                         final password = passwordController.text.trim();
 
-                        if (name.isEmpty ||
-                            email.isEmpty ||
-                            password.isEmpty) {
+                        if (name.isEmpty || email.isEmpty || password.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text('Please fill required fields')),
