@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/supabase_service.dart';
 import 'login_page.dart';
 
+//ProfilePage Widget 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -12,18 +13,25 @@ class ProfilePage extends StatelessWidget {
     final user = service.getCurrentUser();
 
     return Scaffold(
+      //AppBar 
       appBar: AppBar(
-        title: const Text('Profile',style: TextStyle(color: Colors.white),),
+        title: const Text(
+          'Profile',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.teal.shade700,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white), // White back arrow
       ),
+
+      // Body 
       body: user == null
-          ? const Center(child: Text('No user found'))
+          ? const Center(child: Text('No user found')) // No user case
           : Column(
               children: [
                 const Spacer(),
-                // Centered Card
+
+                //Centered User Card 
                 Center(
                   child: Card(
                     shape: RoundedRectangleBorder(
@@ -36,6 +44,7 @@ class ProfilePage extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          //User Avatar 
                           CircleAvatar(
                             radius: 40,
                             backgroundColor: Colors.teal.shade700,
@@ -48,12 +57,16 @@ class ProfilePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
+
+                          //User Name 
                           Text(
                             user.userMetadata?['name'] ?? 'No Name',
                             style: const TextStyle(
                                 fontSize: 22, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
+
+                          //User Email 
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -66,6 +79,8 @@ class ProfilePage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 6),
+
+                          //User Phone 
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -78,6 +93,8 @@ class ProfilePage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 20),
+
+                          //Settings Button 
                           ElevatedButton.icon(
                             onPressed: () {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -103,6 +120,8 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
+
+                //Sign Out Button
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: ElevatedButton(
@@ -117,7 +136,10 @@ class ProfilePage extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent,
                         minimumSize: const Size.fromHeight(50)),
-                    child: const Text('Sign Out',style: TextStyle(color: Colors.white),),
+                    child: const Text(
+                      'Sign Out',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],

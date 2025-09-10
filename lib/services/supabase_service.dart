@@ -1,10 +1,12 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/expense.dart';
 
+//SupabaseService: Wrapper around Supabase client 
 class SupabaseService {
   final SupabaseClient client = Supabase.instance.client;
+  // Provides app-wide configured Supabase client
 
-  // Sign up user
+  //Sign Up User 
   Future<void> signUp({
     required String email,
     required String password,
@@ -14,11 +16,11 @@ class SupabaseService {
     await client.auth.signUp(
       email: email,
       password: password,
-      data: {'name': name, 'phone': phone},
+      data: {'name': name, 'phone': phone}, // store extra fields in user metadata
     );
   }
 
-  // Sign in user
+  //Sign In User 
   Future<void> signIn({
     required String email,
     required String password,
@@ -29,17 +31,17 @@ class SupabaseService {
     );
   }
 
-  // Sign out user
+  //Sign Out User 
   Future<void> signOut() async {
     await client.auth.signOut();
   }
 
-  // Get current user
+  //Get Current Logged-in User 
   User? getCurrentUser() {
     return client.auth.currentUser;
   }
 
-  // Add expense
+  //Add New Expense 
   Future<void> addExpense(Expense expense) async {
     final userId = client.auth.currentUser?.id;
     if (userId == null) return;
@@ -53,7 +55,7 @@ class SupabaseService {
     });
   }
 
-  // Fetch expenses
+  //Fetch Expenses for Current User 
   Future<List<Expense>> fetchExpenses() async {
     final userId = client.auth.currentUser?.id;
     if (userId == null) return [];
@@ -68,7 +70,7 @@ class SupabaseService {
     return rawList.map((e) => Expense.fromMap(e)).toList();
   }
 
-  // Update expense
+  //Update Existing Expense 
   Future<void> updateExpense(Expense expense) async {
     final userId = client.auth.currentUser?.id;
     if (userId == null || expense.id == null) {
@@ -83,11 +85,11 @@ class SupabaseService {
           'category': expense.category,
           'date': expense.date.toIso8601String(),
         })
-        .eq('id', expense.id!) // force non-null
+        .eq('id', expense.id!)
         .eq('user_id', userId);
   }
 
-  // Delete expense
+  //Delete Expense by ID 
   Future<void> deleteExpense(String id) async {
     final userId = client.auth.currentUser?.id;
     if (userId == null) return;

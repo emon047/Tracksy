@@ -6,6 +6,7 @@ import '../models/expense.dart';
 import 'profile_page.dart';
 import 'expense_page.dart';
 
+//HomePage Widget 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -13,13 +14,15 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+//HomePage State 
 class _HomePageState extends State<HomePage> {
+  //Variables 
   List<Expense> expenses = [];
   List<Expense> filtered = [];
   bool loading = true;
-
   double monthlyBudget = 0; // Monthly budget variable
 
+  //Load all expenses from Supabase 
   Future<void> loadExpenses() async {
     setState(() => loading = true);
     final service = Provider.of<SupabaseService>(context, listen: false);
@@ -31,6 +34,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //Filter expenses by search query
   void _filter(String query) {
     setState(() {
       filtered = expenses.where((e) {
@@ -42,13 +46,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //Init State
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => loadExpenses());
   }
 
-  // Helper functions
+  //Helper getters for summaries 
   double get todaySpent {
     final now = DateTime.now();
     return expenses
@@ -74,6 +79,7 @@ class _HomePageState extends State<HomePage> {
         .fold(0.0, (sum, e) => sum + e.amount);
   }
 
+  //Show Expense Summary Dialog 
   void showExpenseSummary() {
     showDialog(
       context: context,
@@ -100,10 +106,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //Build UI 
   @override
   Widget build(BuildContext context) {
     final tealDark = Colors.teal.shade700;
 
+    //Calculate total spent & category totals 
     double totalSpent = 0;
     final Map<String, double> categoryTotals = {};
     for (var e in expenses) {
@@ -112,6 +120,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
+      //AppBar 
       appBar: AppBar(
         title: const Text(
           'TrackSy',
@@ -119,11 +128,12 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: tealDark,
         actions: [
-          // Today/Week/Month Expense Icon Button
+          //Expense Summary Button
           IconButton(
             icon: const Icon(Icons.bar_chart, color: Colors.white),
             onPressed: showExpenseSummary,
           ),
+          //Profile Page Button 
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () async {
@@ -136,6 +146,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+
+      //Floating Action Button (Add Expense) 
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final didAdd = await Navigator.push(
@@ -147,6 +159,8 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: tealDark,
         child: const Icon(Icons.add, color: Colors.white),
       ),
+
+      //Body
       body: RefreshIndicator(
         onRefresh: loadExpenses,
         child: loading
@@ -156,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Monthly Budget Card
+                    //Monthly Budget Card 
                     Card(
                       color: Colors.orange.shade50,
                       shape: RoundedRectangleBorder(
@@ -181,6 +195,7 @@ class _HomePageState extends State<HomePage> {
                                               fontWeight: FontWeight.bold,
                                               color: Colors.orange.shade900)),
                                     ]),
+                                //Edit Monthly Budget Button 
                                 IconButton(
                                   icon: const Icon(Icons.edit, color: Colors.orange),
                                   onPressed: () {
@@ -228,6 +243,7 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                             const SizedBox(height: 10),
+                            //Display Current Spent
                             Text(
                               'Current Spent: ৳${totalSpent.toStringAsFixed(2)}',
                               style: TextStyle(
@@ -243,7 +259,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Pie chart for expense categories
+                    //Pie chart for category totals
                     if (categoryTotals.isNotEmpty)
                       SizedBox(
                         height: 200,
@@ -261,7 +277,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     const SizedBox(height: 16),
 
-                    // Search field
+                    //Search Field 
                     TextField(
                       decoration: const InputDecoration(
                         labelText: 'Search expense',
@@ -276,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                             fontSize: 18, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
 
-                    // Expense List
+                    //Expense List 
                     Expanded(
                       child: filtered.isEmpty
                           ? Center(
@@ -297,6 +313,7 @@ class _HomePageState extends State<HomePage> {
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
+                                        //Edit Expense Button 
                                         IconButton(
                                           icon: const Icon(Icons.edit, color: Colors.teal),
                                           onPressed: () async {
@@ -308,6 +325,7 @@ class _HomePageState extends State<HomePage> {
                                             if (didUpdate == true) await loadExpenses();
                                           },
                                         ),
+                                        //Delete Expense Button 
                                         IconButton(
                                           icon: const Icon(Icons.delete, color: Colors.redAccent),
                                           onPressed: () async {

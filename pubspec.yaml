@@ -1,22 +1,25 @@
-name: tracksy
+# Project Info 
+name: tracksy                 
 description: A simple expense tracker app using Supabase
-version: 1.0.0+1
+version: 1.0.0+1               
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: ">=3.3.0 <4.0.0"        
 
+# Dependencies 
 dependencies:
   flutter:
-    sdk: flutter
-  provider: ^6.0.5
-  supabase_flutter: ^2.2.0
-  fl_chart: ^1.1.0
-  intl: ^0.18.1
+    sdk: flutter                
+  provider: ^6.0.5              
+  supabase_flutter: ^2.2.0      
+  fl_chart: ^1.1.0             
+  intl: ^0.18.1                 
 
-
+# Dev Dependencies 
 dev_dependencies:
   flutter_test:
-    sdk: flutter
-  flutter_lints: ^2.0.1
+    sdk: flutter                
+  flutter_lints: ^2.0.1         
 
+# Flutter Config 
 flutter:
-  uses-material-design: true
+  uses-material-design: true     

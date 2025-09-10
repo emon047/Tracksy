@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/supabase_service.dart';
 import '../models/expense.dart';
 
+//ExpensePage Widget 
 class ExpensePage extends StatefulWidget {
   const ExpensePage({super.key, this.expense});
 
@@ -12,7 +13,9 @@ class ExpensePage extends StatefulWidget {
   State<ExpensePage> createState() => _ExpensePageState();
 }
 
+//ExpensePage State 
 class _ExpensePageState extends State<ExpensePage> {
+  //Controllers & Variables
   final TextEditingController titleController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   String category = 'Others';
@@ -28,6 +31,7 @@ class _ExpensePageState extends State<ExpensePage> {
     'Others'
   ];
 
+  //Initialize data if updating
   @override
   void initState() {
     super.initState();
@@ -38,11 +42,13 @@ class _ExpensePageState extends State<ExpensePage> {
     }
   }
 
+  //Build UI 
   @override
   Widget build(BuildContext context) {
     final service = Provider.of<SupabaseService>(context, listen: false);
 
     return Scaffold(
+      //AppBar 
       appBar: AppBar(
         title: Text(
           widget.expense == null ? 'Add Expense' : 'Update Expense',
@@ -55,17 +61,22 @@ class _ExpensePageState extends State<ExpensePage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
+
+      //Body 
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Column(
             children: [
+              //Title Input
               TextField(
                 controller: titleController,
                 decoration: const InputDecoration(
                     labelText: 'Title', prefixIcon: Icon(Icons.title)),
               ),
               const SizedBox(height: 12),
+
+              //Amount Input 
               TextField(
                 controller: amountController,
                 decoration: const InputDecoration(
@@ -73,6 +84,8 @@ class _ExpensePageState extends State<ExpensePage> {
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 12),
+
+              //Category Dropdown 
               DropdownButtonFormField<String>(
                 initialValue: category,
                 items: categories
@@ -88,14 +101,15 @@ class _ExpensePageState extends State<ExpensePage> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              //Add / Update Button 
               loading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: () async {
                         final title = titleController.text.trim();
-                        final amount = double.tryParse(
-                                amountController.text.trim()) ??
-                            0;
+                        final amount =
+                            double.tryParse(amountController.text.trim()) ?? 0;
 
                         if (title.isEmpty || amount <= 0) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -109,14 +123,14 @@ class _ExpensePageState extends State<ExpensePage> {
 
                         try {
                           if (widget.expense == null) {
-                            // Add new expense
+                            //Add new expense 
                             await service.addExpense(Expense(
                                 title: title,
                                 amount: amount,
                                 category: category,
                                 date: DateTime.now()));
                           } else {
-                            // Update existing expense
+                            //Update existing expense 
                             await service.updateExpense(Expense(
                                 id: widget.expense!.id,
                                 title: title,

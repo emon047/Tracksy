@@ -4,6 +4,7 @@ import '../services/supabase_service.dart';
 import 'login_page.dart';
 import 'home_page.dart';
 
+//SplashScreen Widget 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -11,7 +12,9 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
+//SplashScreen State 
 class _SplashScreenState extends State<SplashScreen> {
+  //initState to handle navigation after delay 
   @override
   void initState() {
     super.initState();
@@ -21,20 +24,23 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
+  //Navigate to Home or Login based on user login 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(seconds: 5));
-    
+    await Future.delayed(const Duration(seconds: 5)); 
+
     final service = Provider.of<SupabaseService>(context, listen: false);
     final user = service.getCurrentUser();
 
     if (!mounted) return;
 
     if (user != null) {
+      //Navigate to HomePage if user is logged in
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),
       );
     } else {
+      //Navigate to LoginPage if no user
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -42,6 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  //Build SplashScreen UI 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
