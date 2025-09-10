@@ -4,7 +4,9 @@ import '../services/supabase_service.dart';
 import '../models/expense.dart';
 
 class ExpensePage extends StatefulWidget {
-  const ExpensePage({super.key});
+  const ExpensePage({super.key, this.expense});
+
+  final Expense? expense; // For update functionality
 
   @override
   State<ExpensePage> createState() => _ExpensePageState();
@@ -26,18 +28,31 @@ class _ExpensePageState extends State<ExpensePage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.expense != null) {
+      titleController.text = widget.expense!.title;
+      amountController.text = widget.expense!.amount.toString();
+      category = widget.expense!.category;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final service = Provider.of<SupabaseService>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Add Expense',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          widget.expense == null ? 'Add Expense' : 'Update Expense',
+          style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.teal.shade700,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white), // ✅ Back icon white
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -77,38 +92,49 @@ class _ExpensePageState extends State<ExpensePage> {
                   : ElevatedButton(
                       onPressed: () async {
                         final title = titleController.text.trim();
-                        final amount =
-                            double.tryParse(amountController.text.trim()) ?? 0;
+                        final amount = double.tryParse(
+                                amountController.text.trim()) ??
+                            0;
 
                         if (title.isEmpty || amount <= 0) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Please provide valid title & amount')),
-                          );
+                              const SnackBar(
+                                  content: Text(
+                                      'Please provide valid title & amount')));
                           return;
                         }
 
                         setState(() => loading = true);
+
                         try {
-                          await service.addExpense(Expense(
-                            title: title,
-                            amount: amount,
-                            category: category,
-                            date: DateTime.now(),
-                          ));
+                          if (widget.expense == null) {
+                            // Add new expense
+                            await service.addExpense(Expense(
+                                title: title,
+                                amount: amount,
+                                category: category,
+                                date: DateTime.now()));
+                          } else {
+                            // Update existing expense
+                            await service.updateExpense(Expense(
+                                id: widget.expense!.id,
+                                title: title,
+                                amount: amount,
+                                category: category,
+                                date: widget.expense!.date));
+                          }
+
                           setState(() => loading = false);
                           Navigator.pop(context, true);
                         } catch (e) {
                           setState(() => loading = false);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
-                          );
+                              SnackBar(content: Text('Error: $e')));
                         }
                       },
-                      child: const Text(
-                        'Add Expense',
-                        style: TextStyle(color: Colors.white),
+                      child: Text(
+                        widget.expense == null ? 'Add Expense' : 'Update Expense',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     )
             ],

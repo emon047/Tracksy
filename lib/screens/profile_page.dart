@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/supabase_service.dart';
+import 'login_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -10,106 +11,117 @@ class ProfilePage extends StatelessWidget {
     final service = Provider.of<SupabaseService>(context, listen: false);
     final user = service.getCurrentUser();
 
-    // Mock phone number (since Supabase default user object doesn’t store phone)
-    const phoneNumber = '+8801XXXXXXXXX';
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile', style: TextStyle(color: Colors.white)),
+        title: const Text('Profile',style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.teal.shade700,
-        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white), // White back arrow
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 40),
-          Center(
-            child: Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.teal,
-                      child: Icon(Icons.person, size: 50, color: Colors.white),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      user?.userMetadata?['name'] ?? "User Name",
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      user?.email ?? "user@example.com",
-                      style:
-                          TextStyle(fontSize: 16, color: Colors.grey.shade700),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      phoneNumber,
-                      style:
-                          TextStyle(fontSize: 16, color: Colors.grey.shade700),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Navigate to settings page
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Settings coming soon...")),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal.shade700,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+      body: user == null
+          ? const Center(child: Text('No user found'))
+          : Column(
+              children: [
+                const Spacer(),
+                // Centered Card
+                Center(
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    elevation: 6,
+                    color: Colors.teal.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.teal.shade700,
+                            child: Text(
+                              (user.userMetadata?['name'] ?? 'U')
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: const TextStyle(
+                                  fontSize: 32, color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            user.userMetadata?['name'] ?? 'No Name',
+                            style: const TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.email, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                user.email ?? 'No Email',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.phone, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                user.userMetadata?['phone'] ?? 'No Phone',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Settings clicked')),
+                              );
+                            },
+                            icon: const Icon(Icons.settings, color: Colors.white),
+                            label: const Text(
+                              'Settings',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal.shade700,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 12)),
+                          ),
+                        ],
                       ),
-                      icon: const Icon(Icons.settings, color: Colors.white),
-                      label: const Text(
-                        'Settings',
-                        style: TextStyle(color: Colors.white),
-                      ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await service.signOut();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const LoginPage()),
+                          (route) => false);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        minimumSize: const Size.fromHeight(50)),
+                    child: const Text('Sign Out'),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                await service.signOut();
-                if (context.mounted) {
-                  Navigator.pop(context);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade600,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              icon: const Icon(Icons.logout, color: Colors.white),
-              label: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

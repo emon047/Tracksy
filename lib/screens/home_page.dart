@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/supabase_service.dart';
+import '../models/expense.dart';
 import 'profile_page.dart';
 import 'expense_page.dart';
 
@@ -13,8 +14,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Map<String, dynamic>> expenses = [];
-  List<Map<String, dynamic>> filtered = [];
+  List<Expense> expenses = [];
+  List<Expense> filtered = [];
   bool loading = true;
 
   Future<void> loadExpenses() async {
@@ -22,7 +23,7 @@ class _HomePageState extends State<HomePage> {
     final service = Provider.of<SupabaseService>(context, listen: false);
     final data = await service.fetchExpenses();
     setState(() {
-      expenses = data.map((e) => e.toMap()).toList();
+      expenses = data;
       filtered = expenses;
       loading = false;
     });
@@ -31,8 +32,8 @@ class _HomePageState extends State<HomePage> {
   void _filter(String query) {
     setState(() {
       filtered = expenses.where((e) {
-        final t = (e['title'] ?? '').toString().toLowerCase();
-        final c = (e['category'] ?? '').toString().toLowerCase();
+        final t = e.title.toLowerCase();
+        final c = e.category.toLowerCase();
         return t.contains(query.toLowerCase()) ||
             c.contains(query.toLowerCase());
       }).toList();
@@ -50,16 +51,10 @@ class _HomePageState extends State<HomePage> {
     final tealDark = Colors.teal.shade700;
 
     double total = 0;
-    final categoryTotals = <String, double>{};
+    final Map<String, double> categoryTotals = {};
     for (var e in expenses) {
-      final amt = e['amount'];
-      double v = 0;
-      if (amt is num) {
-        v = amt.toDouble();
-      } else if (amt is String) v = double.tryParse(amt) ?? 0;
-      total += v;
-      final cat = (e['category'] ?? 'Others').toString();
-      categoryTotals[cat] = (categoryTotals[cat] ?? 0) + v;
+      total += e.amount;
+      categoryTotals[e.category] = (categoryTotals[e.category] ?? 0) + e.amount;
     }
 
     return Scaffold(
@@ -71,7 +66,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: tealDark,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person, color: Colors.white), // ✅ White profile icon
+            icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () async {
               await Navigator.push(
                   context,
@@ -85,11 +80,13 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final didAdd = await Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const ExpensePage()));
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const ExpensePage()));
           if (didAdd == true) await loadExpenses();
         },
         backgroundColor: tealDark,
-        child: const Icon(Icons.add, color: Colors.white), // ✅ White plus icon
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       body: RefreshIndicator(
         onRefresh: loadExpenses,
@@ -101,6 +98,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Summary Card
                     Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -145,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Pie chart for categories
+                    // Pie chart
                     if (categoryTotals.isNotEmpty)
                       SizedBox(
                         height: 200,
@@ -163,8 +161,9 @@ class _HomePageState extends State<HomePage> {
                               .toList(),
                         )),
                       ),
-
                     const SizedBox(height: 16),
+
+                    // Search
                     TextField(
                       decoration: const InputDecoration(
                         labelText: 'Search expense',
@@ -173,51 +172,69 @@ class _HomePageState extends State<HomePage> {
                       onChanged: _filter,
                     ),
                     const SizedBox(height: 12),
+
                     const Text('Recent Expenses',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
+
+                    // Expense List
                     Expanded(
                       child: filtered.isEmpty
                           ? Center(
                               child: Text('No expenses yet',
-                                  style:
-                                      TextStyle(color: Colors.grey.shade700)))
+                                  style: TextStyle(
+                                      color: Colors.grey.shade700)))
                           : ListView.separated(
                               itemCount: filtered.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 8),
                               itemBuilder: (context, idx) {
                                 final e = filtered[idx];
-                                final title = e['title'] ?? 'Untitled';
-                                final amt = e['amount'] ?? 0;
-                                final cat = e['category'] ?? '';
-                                final rawDate = e['date'] ?? '';
-                                String dateStr = '';
-                                try {
-                                  dateStr = DateTime.parse(rawDate)
-                                      .toLocal()
-                                      .toString()
-                                      .split('.')[0];
-                                } catch (_) {
-                                  dateStr = rawDate.toString();
-                                }
 
                                 return Card(
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
                                   child: ListTile(
-                                    title: Text(title),
-                                    subtitle: Text('$cat • $dateStr'),
-                                    trailing: Text(
-                                        '\$${double.tryParse(amt.toString())?.toStringAsFixed(2) ?? amt.toString()}'),
-                                    onLongPress: () async {
-                                      final service = Provider.of<SupabaseService>(
-                                          context,
-                                          listen: false);
-                                      await service.deleteExpense(e['id']);
-                                      await loadExpenses();
-                                    },
+                                    title: Text(e.title),
+                                    subtitle: Text(
+                                        '${e.category} • ${e.date.toLocal().toString().split('.')[0]}'),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Edit button
+                                        IconButton(
+                                          icon: const Icon(Icons.edit,
+                                              color: Colors.teal),
+                                          onPressed: () async {
+                                            final didUpdate =
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (_) =>
+                                                            ExpensePage(
+                                                                expense: e)));
+                                            if (didUpdate == true)
+                                              await loadExpenses();
+                                          },
+                                        ),
+                                        // Delete button
+                                        IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.redAccent),
+                                          onPressed: () async {
+                                            final service = Provider.of<
+                                                    SupabaseService>(context,
+                                                listen: false);
+                                            if (e.id != null) {
+                                              await service
+                                                  .deleteExpense(e.id!);
+                                              await loadExpenses();
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },

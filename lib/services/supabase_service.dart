@@ -14,7 +14,7 @@ class SupabaseService {
     await client.auth.signUp(
       email: email,
       password: password,
-      data: {'name': name, 'phone': phone}, // Use 'data' instead of 'userMetadata'
+      data: {'name': name, 'phone': phone},
     );
   }
 
@@ -68,8 +68,34 @@ class SupabaseService {
     return rawList.map((e) => Expense.fromMap(e)).toList();
   }
 
+  // Update expense
+  Future<void> updateExpense(Expense expense) async {
+    final userId = client.auth.currentUser?.id;
+    if (userId == null || expense.id == null) {
+      throw Exception('User not logged in or expense ID is null');
+    }
+
+    await client
+        .from('expenses')
+        .update({
+          'title': expense.title,
+          'amount': expense.amount,
+          'category': expense.category,
+          'date': expense.date.toIso8601String(),
+        })
+        .eq('id', expense.id!) // force non-null
+        .eq('user_id', userId);
+  }
+
   // Delete expense
   Future<void> deleteExpense(String id) async {
-    await client.from('expenses').delete().eq('id', id);
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    await client
+        .from('expenses')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', userId);
   }
 }

@@ -74,9 +74,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
                         if (name.isEmpty || email.isEmpty || password.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Please fill required fields')),
-                          );
+                              const SnackBar(
+                                  content: Text(
+                                      'Please fill required fields')));
                           return;
                         }
 
@@ -89,30 +89,27 @@ class _SignUpPageState extends State<SignUpPage> {
                               name: name,
                               phone: phone);
 
-                          final user = service.getCurrentUser();
                           setState(() => loading = false);
 
-                          if (user == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text(
-                                      'Signed up. Please confirm your email before login.')),
-                            );
-                            Navigator.pop(context);
-                          } else {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const HomePage()));
-                          }
+                                      'Signed up. Please confirm your email before login.')));
+
+                          Navigator.pop(context);
                         } catch (e) {
                           setState(() => loading = false);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
-                          );
+                              SnackBar(content: Text('Error: $e')));
                         }
                       },
-                      child: const Text('Create Account'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal.shade700,
+                      ),
+                      child: const Text(
+                        'Create Account',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     )
             ],
           ),

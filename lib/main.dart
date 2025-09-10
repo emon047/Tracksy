@@ -7,6 +7,7 @@ import 'screens/splash_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Supabase with your project URL and anon key
   await Supabase.initialize(
     url: 'https://qewrjepktqnadmoyjgne.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFld3JqZXBrdHFuYWRtb3lqZ25lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczNjAzODgsImV4cCI6MjA3MjkzNjM4OH0.NsHbaG160vHw79Q1NNVD7UA1r71acy9016cWK4AOSYo',

@@ -70,9 +70,8 @@ class _LoginPageState extends State<LoginPage> {
 
                         if (email.isEmpty || password.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Enter email and password')),
-                          );
+                              const SnackBar(
+                                  content: Text('Enter email and password')));
                           return;
                         }
 
@@ -100,14 +99,15 @@ class _LoginPageState extends State<LoginPage> {
                         } catch (e) {
                           setState(() => loading = false);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
-                          );
+                              SnackBar(content: Text('Error: $e')));
                         }
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal.shade900,
+                      ),
                       child: const Text(
                         'Login',
-                        style: TextStyle(
-                            color: Colors.white), // ✅ Text color changed to white
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
               const SizedBox(height: 12),
@@ -130,5 +130,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-// Md. Emon Elias

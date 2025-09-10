@@ -12,36 +12,50 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  Future<void> checkAuth() async {
-    final service = Provider.of<SupabaseService>(context, listen: false);
-    final user = service.getCurrentUser();
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (user != null) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const HomePage()));
-    } else {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const LoginPage()));
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    checkAuth();
+    // Use post frame callback to safely access Provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigate();
+    });
+  }
+
+  Future<void> _navigate() async {
+    await Future.delayed(const Duration(seconds: 4));
+    
+    final service = Provider.of<SupabaseService>(context, listen: false);
+    final user = service.getCurrentUser();
+
+    if (!mounted) return;
+
+    if (user != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: Text('TrackSy',
+      backgroundColor: Colors.teal,
+      body: const Center(
+        child: Text(
+          "TrackSy",
           style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal.shade800)),
-    ));
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 }
