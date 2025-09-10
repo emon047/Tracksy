@@ -22,9 +22,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up'),
+        title: const Text('Sign Up', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.teal.shade700,
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white), // ✅ back arrow white
       ),
       body: Center(
         child: SingleChildScrollView(
