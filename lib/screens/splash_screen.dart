@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(seconds: 20));
+    await Future.delayed(const Duration(seconds: 5));
     
     final service = Provider.of<SupabaseService>(context, listen: false);
     final user = service.getCurrentUser();
