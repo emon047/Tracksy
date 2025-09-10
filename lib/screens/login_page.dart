@@ -22,8 +22,10 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Track Your Expense',
-        style: TextStyle(color: Colors.white,fontSize: 20),),
+        title: const Text(
+          'Track Your Expense',
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
         backgroundColor: Colors.teal.shade900,
         centerTitle: true,
       ),
@@ -85,8 +87,8 @@ class _LoginPageState extends State<LoginPage> {
                           if (user == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content:
-                                      Text('Login failed. Check credentials.')),
+                                  content: Text(
+                                      'Login failed. Check credentials.')),
                             );
                           } else {
                             Navigator.pushReplacement(
@@ -102,7 +104,11 @@ class _LoginPageState extends State<LoginPage> {
                           );
                         }
                       },
-                      child: const Text('Login'),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                            color: Colors.white), // ✅ Text color changed to white
+                      ),
                     ),
               const SizedBox(height: 12),
               TextButton(
@@ -125,4 +131,4 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-//Md. Emon Elias
+// Md. Emon Elias

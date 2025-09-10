@@ -31,9 +31,13 @@ class _ExpensePageState extends State<ExpensePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Expense'),
+        title: const Text(
+          'Add Expense',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.teal.shade700,
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white), // ✅ Back icon white
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -73,34 +77,39 @@ class _ExpensePageState extends State<ExpensePage> {
                   : ElevatedButton(
                       onPressed: () async {
                         final title = titleController.text.trim();
-                        final amount = double.tryParse(
-                                amountController.text.trim()) ??
-                            0;
+                        final amount =
+                            double.tryParse(amountController.text.trim()) ?? 0;
 
                         if (title.isEmpty || amount <= 0) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Please provide valid title & amount')));
+                            const SnackBar(
+                                content: Text(
+                                    'Please provide valid title & amount')),
+                          );
                           return;
                         }
 
                         setState(() => loading = true);
                         try {
                           await service.addExpense(Expense(
-                              title: title,
-                              amount: amount,
-                              category: category,
-                              date: DateTime.now()));
+                            title: title,
+                            amount: amount,
+                            category: category,
+                            date: DateTime.now(),
+                          ));
                           setState(() => loading = false);
                           Navigator.pop(context, true);
                         } catch (e) {
                           setState(() => loading = false);
                           ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')));
+                            SnackBar(content: Text('Error: $e')),
+                          );
                         }
                       },
-                      child: const Text('Add Expense'),
+                      child: const Text(
+                        'Add Expense',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     )
             ],
           ),

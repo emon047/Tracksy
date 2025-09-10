@@ -64,12 +64,14 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TrackSy',
-        style: TextStyle(color: Colors.white,fontSize: 20),),
+        title: const Text(
+          'TrackSy',
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
         backgroundColor: tealDark,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person, color: Colors.white), // ✅ White profile icon
             onPressed: () async {
               await Navigator.push(
                   context,
@@ -87,7 +89,7 @@ class _HomePageState extends State<HomePage> {
           if (didAdd == true) await loadExpenses();
         },
         backgroundColor: tealDark,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white), // ✅ White plus icon
       ),
       body: RefreshIndicator(
         onRefresh: loadExpenses,
