@@ -18,6 +18,8 @@ class _HomePageState extends State<HomePage> {
   List<Expense> filtered = [];
   bool loading = true;
 
+  double monthlyBudget = 0; // Monthly budget variable
+
   Future<void> loadExpenses() async {
     setState(() => loading = true);
     final service = Provider.of<SupabaseService>(context, listen: false);
@@ -46,14 +48,66 @@ class _HomePageState extends State<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) => loadExpenses());
   }
 
+  // Helper functions
+  double get todaySpent {
+    final now = DateTime.now();
+    return expenses
+        .where((e) =>
+            e.date.year == now.year &&
+            e.date.month == now.month &&
+            e.date.day == now.day)
+        .fold(0.0, (sum, e) => sum + e.amount);
+  }
+
+  double get weekSpent {
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 7));
+    return expenses
+        .where((e) => e.date.isAfter(weekAgo))
+        .fold(0.0, (sum, e) => sum + e.amount);
+  }
+
+  double get monthSpent {
+    final now = DateTime.now();
+    return expenses
+        .where((e) => e.date.year == now.year && e.date.month == now.month)
+        .fold(0.0, (sum, e) => sum + e.amount);
+  }
+
+  void showExpenseSummary() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Expense Summary'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Today: ৳${todaySpent.toStringAsFixed(2)}'),
+              Text('This Week: ৳${weekSpent.toStringAsFixed(2)}'),
+              Text('This Month: ৳${monthSpent.toStringAsFixed(2)}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Close'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tealDark = Colors.teal.shade700;
 
-    double total = 0;
+    double totalSpent = 0;
     final Map<String, double> categoryTotals = {};
     for (var e in expenses) {
-      total += e.amount;
+      totalSpent += e.amount;
       categoryTotals[e.category] = (categoryTotals[e.category] ?? 0) + e.amount;
     }
 
@@ -65,6 +119,11 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: tealDark,
         actions: [
+          // Today/Week/Month Expense Icon Button
+          IconButton(
+            icon: const Icon(Icons.bar_chart, color: Colors.white),
+            onPressed: showExpenseSummary,
+          ),
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () async {
@@ -93,57 +152,98 @@ class _HomePageState extends State<HomePage> {
         child: loading
             ? const Center(child: CircularProgressIndicator())
             : Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Summary Card
+                    // Monthly Budget Card
                     Card(
-                      elevation: 2,
+                      color: Colors.orange.shade50,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Monthly Spend',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey.shade700)),
-                                  const SizedBox(height: 6),
-                                  Text('৳${total.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.teal.shade900)),
-                                ]),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Items',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700)),
-                                const SizedBox(height: 6),
-                                Text('${expenses.length}',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.teal.shade900)),
+                                Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Monthly Budget',
+                                          style: TextStyle(fontSize: 14)),
+                                      const SizedBox(height: 6),
+                                      Text('৳${monthlyBudget.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.orange.shade900)),
+                                    ]),
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.orange),
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (ctx) {
+                                          final controller = TextEditingController(
+                                              text: monthlyBudget.toStringAsFixed(2));
+                                          return AlertDialog(
+                                            title: const Text('Set Monthly Budget'),
+                                            content: TextField(
+                                              controller: controller,
+                                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                              decoration: const InputDecoration(
+                                                  hintText: 'Enter budget in BDT'),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(ctx),
+                                                child: const Text('Cancel'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  final value = double.tryParse(controller.text.trim());
+                                                  if (value != null && value > 0) {
+                                                    setState(() {
+                                                      monthlyBudget = value;
+                                                    });
+                                                  }
+                                                  Navigator.pop(ctx);
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.teal.shade700,
+                                                ),
+                                                child: const Text(
+                                                  'Save',
+                                                  style: TextStyle(color: Colors.white),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                  },
+                                ),
                               ],
-                            )
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Current Spent: ৳${totalSpent.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: totalSpent > monthlyBudget
+                                      ? Colors.red
+                                      : Colors.green.shade700),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Pie chart
+                    // Pie chart for expense categories
                     if (categoryTotals.isNotEmpty)
                       SizedBox(
                         height: 200,
@@ -153,9 +253,7 @@ class _HomePageState extends State<HomePage> {
                                   value: e.value,
                                   title: e.key,
                                   color: Colors
-                                      .primaries[categoryTotals.keys
-                                              .toList()
-                                              .indexOf(e.key) %
+                                      .primaries[categoryTotals.keys.toList().indexOf(e.key) %
                                           Colors.primaries.length],
                                   radius: 60))
                               .toList(),
@@ -163,7 +261,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     const SizedBox(height: 16),
 
-                    // Search
+                    // Search field
                     TextField(
                       decoration: const InputDecoration(
                         labelText: 'Search expense',
@@ -183,15 +281,12 @@ class _HomePageState extends State<HomePage> {
                       child: filtered.isEmpty
                           ? Center(
                               child: Text('No expenses yet',
-                                  style: TextStyle(
-                                      color: Colors.grey.shade700)))
+                                  style: TextStyle(color: Colors.grey.shade700)))
                           : ListView.separated(
                               itemCount: filtered.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 8),
+                              separatorBuilder: (_, __) => const SizedBox(height: 8),
                               itemBuilder: (context, idx) {
                                 final e = filtered[idx];
-
                                 return Card(
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
@@ -202,33 +297,24 @@ class _HomePageState extends State<HomePage> {
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        // Edit button
                                         IconButton(
-                                          icon: const Icon(Icons.edit,
-                                              color: Colors.teal),
+                                          icon: const Icon(Icons.edit, color: Colors.teal),
                                           onPressed: () async {
-                                            final didUpdate =
-                                                await Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            ExpensePage(
-                                                                expense: e)));
-                                            if (didUpdate == true)
-                                              await loadExpenses();
+                                            final didUpdate = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        ExpensePage(expense: e)));
+                                            if (didUpdate == true) await loadExpenses();
                                           },
                                         ),
-                                        // Delete button
                                         IconButton(
-                                          icon: const Icon(Icons.delete,
-                                              color: Colors.redAccent),
+                                          icon: const Icon(Icons.delete, color: Colors.redAccent),
                                           onPressed: () async {
-                                            final service = Provider.of<
-                                                    SupabaseService>(context,
+                                            final service = Provider.of<SupabaseService>(context,
                                                 listen: false);
                                             if (e.id != null) {
-                                              await service
-                                                  .deleteExpense(e.id!);
+                                              await service.deleteExpense(e.id!);
                                               await loadExpenses();
                                             }
                                           },

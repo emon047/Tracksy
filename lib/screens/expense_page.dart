@@ -21,6 +21,7 @@ class _ExpensePageState extends State<ExpensePage> {
   final List<String> categories = [
     'Food',
     'Transport',
+    'Travel',
     'Shopping',
     'Bills',
     'Entertainment',
@@ -73,7 +74,7 @@ class _ExpensePageState extends State<ExpensePage> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: category,
+                initialValue: category,
                 items: categories
                     .map((c) => DropdownMenuItem(
                           value: c,

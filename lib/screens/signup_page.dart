@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/supabase_service.dart';
-import 'home_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

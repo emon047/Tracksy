@@ -44,13 +44,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.teal,
-      body: const Center(
+      body: Center(
         child: Text(
           "TrackSy",
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 50,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
