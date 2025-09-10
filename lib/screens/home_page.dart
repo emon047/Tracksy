@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                                           fontSize: 14,
                                           color: Colors.grey.shade700)),
                                   const SizedBox(height: 6),
-                                  Text('\$${total.toStringAsFixed(2)}',
+                                  Text('৳${total.toStringAsFixed(2)}',
                                       style: TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,

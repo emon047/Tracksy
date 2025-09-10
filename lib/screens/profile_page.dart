@@ -117,7 +117,7 @@ class ProfilePage extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent,
                         minimumSize: const Size.fromHeight(50)),
-                    child: const Text('Sign Out'),
+                    child: const Text('Sign Out',style: TextStyle(color: Colors.white),),
                   ),
                 ),
               ],
